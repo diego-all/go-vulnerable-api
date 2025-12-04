@@ -83,3 +83,22 @@ curl "http://localhost:8081/instruments/vulnerable-sqligetinst?id=16'+OR+''='" S
 
 
 
+### IDOR
+
+- Requiere crea endpoint de submit, 
+
+
+contexto
+propietario del libro
+
+/books/v1 ??
+
+
+
+
+## Modificaciones
+
+
+GetInstrumentByIDSQLiURLParam
+
+curl -k "localhost:8081/instruments/vulnerable-sqligetinst?id=1"
