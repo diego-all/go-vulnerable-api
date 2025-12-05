@@ -39,26 +39,26 @@ func AppRoutes() http.Handler {
 		MaxAge:           300, // Duración de caché para pre-vuelos CORS en segundos
 	}))
 
-	// Agrupa las rutas relacionadas con "/instruments"
-	r.Route("/instruments", func(r chi.Router) {
+	// Agrupa las rutas relacionadas con "/products"
+	r.Route("/products", func(r chi.Router) {
 
 		// Rutas CRUD estándar (las vulnerabilidades están en los handlers o modelos subyacentes)
-		r.Get("/", handlers.GetAllInstruments)
-		r.Get("/{id}", handlers.GetInstrumentByID)
-		r.Post("/", handlers.CreateInstrument)
-		r.Put("/{id}", handlers.UpdateInstrument)
-		r.Delete("/{id}", handlers.DeleteInstrument)
+		r.Get("/", handlers.GetAllProducts)
+		r.Get("/{id}", handlers.GetProductByID)
+		r.Post("/", handlers.CreateProduct)
+		r.Put("/{id}", handlers.UpdateProduct)
+		r.Delete("/{id}", handlers.DeleteProduct)
 
 		// Rutas Vulnerables (para propósitos académicos y de pruebas de seguridad)
 
 		// Ruta DELETE vulnerable a SQLi (obtiene ID de query param)
-		r.Delete("/vulnerable-sqli", handlers.DeleteInstrumentSQLi)
+		r.Delete("/vulnerable-sqli", handlers.DeleteProductSQLi)
 
 		// Ruta GET vulnerable a SQLi (obtiene ID de query param y puede devolver múltiples)
-		r.Get("/vulnerable-sqligetinst", handlers.GetInstrumentByIDSQLi)
+		r.Get("/vulnerable-sqligetinst", handlers.GetProductByIDSQLi)
 
 		// Ruta GET vulnerable a SQLi (obtiene ID de query param, pero originalmente diseñada para URL param)
-		r.Get("/vulnerable-sqligetinsturlparam", handlers.GetInstrumentByIDSQLiURLParam)
+		r.Get("/vulnerable-sqligetinsturlparam", handlers.GetProductByIDSQLiURLParam)
 
 		// Ruta PUT vulnerable a SQLi (obtiene ID de URL param y datos del JSON)
 		//r.Put("/vulnerable-sqligetinst-put/{id}", handlers.GetInstrumentByIDSQLiPut)
