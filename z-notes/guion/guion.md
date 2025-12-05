@@ -17,14 +17,19 @@ Este error nos confirma dos cosas:
 1. Hay una vulnerabilidad de SQL Injection. Es posible manipular la consulta a la base de datos.
 2. Se están exponiendo errores internos de la base de datos (como el SQLSTATE 42601).
 
-Ahora intentemos manipular la consulta para extraer información de la base de datos. Si el comentario confirma la vulnerabilidad, el siguiente payload la explota por completo. Se inyecta una condicion clásica para ataques de este tipo con OR que siempre es verdadera ('1'='1'). En la base de datos, la consulta ahora se interpreta asi: "retorna los instrumentos donde el id es 5, o donde verdadero es igual a verdadero". En lugar de un solo producto, se obtienen todos los registros de la tabla. Se evadió el filtro del id y se accedió a todos los datos. Esto nos confirma una vulnerabilidad de SQL injection crítica. 
+Ahora intentemos manipular la consulta para extraer información de la base de datos. Si el comentario confirma la vulnerabilidad, el siguiente payload la explota por completo. Se inyecta una condicion clásica para ataques de este tipo con OR que siempre es verdadera ('1'='1'). En la base de datos, la consulta ahora se interpreta asi: "retorna los productos donde el id es 5, o donde verdadero es igual a verdadero". En lugar de un solo producto, se obtienen todos los registros de la tabla. Se evadió el filtro del id y se accedió a todos los datos. Esto nos confirma una vulnerabilidad de SQL injection crítica. 
 
 - + - + - + - + [Imagen Ver el codigo comparativo para mostrar la mitigación] 
 
 El error fundamental está aquí: el desarrollador concatenó el input del usuario directamente en la query usando una función vulnerable sin sanitizar. Esto permite manipular la lógica de la sentencia SQL. Veamos el código.
 
 
-Ahora probaremos el endpoint para borrar instrumentos. 
+Ahora probaremos el endpoint para eliminar productos. 
+
+
+
+
+
 
 Los datos se han perdido permanentemente.
 Para prevenir esto en el SDLC, nunca concate strings. Utilicen siempre consultas parametrizadas en sus controladores de Go.
