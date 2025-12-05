@@ -21,10 +21,15 @@ Ahora intentemos manipular la consulta para extraer información de la base de d
 
 - + - + - + - + [Imagen Ver el codigo comparativo para mostrar la mitigación] 
 
-El error fundamental está aquí: el desarrollador concatenó el input del usuario directamente en la query usando una función vulnerable sin sanitizar. Esto permite manipular la lógica de la sentencia SQL. Veamos el código.
+La causa raíz está aquí: el desarrollador concatenó el input del usuario directamente en la query usando una función vulnerable sin sanitizar. Esto permite manipular la lógica de la sentencia SQL. Veamos el código.
 
 
-Ahora probaremos el endpoint para eliminar productos. 
+Ahora probaremos el endpoint para eliminar productos. Recibe un parametro id para seleccionar que producto se va a eliminar.
+
+Nuevamente se intenta provocando un error con la comilla simple.
+
+
+
 
 
 
