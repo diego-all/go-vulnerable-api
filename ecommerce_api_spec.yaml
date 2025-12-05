@@ -1,0 +1,228 @@
+ecommerce_api_spec.yamlopenapi: 3.0.0
+info:
+  title: E-Commerce Product API
+  description: A simple product management API, including standard CRUD operations and vulnerable endpoints for security testing.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Local Development Server
+
+paths:
+  /products:
+    get:
+      summary: Get all products
+      operationId: getAllProducts
+      tags:
+        - Products (Standard)
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new product
+      operationId: createProduct
+      tags:
+        - Products (Standard)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: The created product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid JSON supplied
+        '500':
+          description: Internal server error (Note: The API exposes internal errors in its current state)
+
+  /products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the product
+    get:
+      summary: Get a product by ID
+      operationId: getProductByID
+      tags:
+        - Products (Standard)
+      responses:
+        '200':
+          description: The product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found or database error
+    put:
+      summary: Update an existing product
+      operationId: updateProduct
+      tags:
+        - Products (Standard)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: The updated product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid JSON supplied
+        '500':
+          description: Internal server error, or product was not found/updated
+    delete:
+      summary: Delete a product by ID
+      operationId: deleteProduct
+      tags:
+        - Products (Standard)
+      responses:
+        '204':
+          description: Product successfully deleted (No Content)
+        '500':
+          description: Internal server error, or product was not found/deleted
+
+  # --- VULNERABLE ENDPOINTS ---
+
+  /products/vulnerable-sqli:
+    delete:
+      summary: VULNERABLE - Delete product by ID via Query Param (SQL Injection)
+      operationId: deleteProductSQLi
+      tags:
+        - Products (Vulnerable)
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID. Highly vulnerable to SQL Injection in the backend.
+      responses:
+        '200':
+          description: Deletion attempt processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: boolean
+                    example: false
+        '400':
+          description: Product ID is required
+        '404':
+          description: Product not found or not deleted
+        '500':
+          description: Internal server error
+
+  /products/vulnerable-sqligetinst:
+    get:
+      summary: VULNERABLE - Get product(s) by ID via Query Param (SQL Injection)
+      operationId: getProductByIDSQLi
+      tags:
+        - Products (Vulnerable)
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID. Highly vulnerable to SQL Injection, can return multiple rows.
+      responses:
+        '200':
+          description: A list of products (potentially many if exploited)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          description: Product(s) not found or database error
+        '500':
+          description: Internal server error
+
+  /products/vulnerable-sqligetinsturlparam:
+    get:
+      summary: VULNERABLE - Get product by ID via Query Param (SQL Injection)
+      operationId: getProductByIDSQLiURLParam
+      tags:
+        - Products (Vulnerable)
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Product ID. Vulnerable to SQL Injection, but likely limited to one result.
+      responses:
+        '200':
+          description: The product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found or database error
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    ProductInput:
+      type: object
+      required:
+        - name
+        - description
+        - price
+      properties:
+        name:
+          type: string
+          example: Guitarra Acústica
+        description:
+          type: string
+          example: 6 cuerdas, madera de abeto
+        price:
+          type: number
+          format: float
+          example: 500.0
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/ProductInput'
+        - type: object
+          properties:
+            ID:
+              type: integer
+              readOnly: true
+              example: 26
+            CreatedAt:
+              type: string
+              format: date-time
+              readOnly: true
+              example: "2023-10-27T10:00:00Z"
+            UpdatedAt:
+              type: string
+              format: date-time
+              readOnly: true
+              example: "2023-10-27T11:00:00Z"
