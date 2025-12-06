@@ -23,21 +23,21 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(products)
 }
 
-func GetProductByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+// func GetProductByID(w http.ResponseWriter, r *http.Request) {
+// 	id := chi.URLParam(r, "id")
 
-	ins, err := models.GetProductByID(context.Background(), id)
-	if err != nil {
-		// La verificación de strconv.NumError ya no es directamente aplicable aquí
-		// porque el error viene del modelo y puede ser más genérico.
-		// El mensaje de error del modelo ahora es más descriptivo.
-		http.Error(w, "Producto no encontrado o error de base de datos", http.StatusNotFound) // Mensaje genérico
-		return
-	}
+// 	ins, err := models.GetProductByID(context.Background(), id)
+// 	if err != nil {
+// 		// La verificación de strconv.NumError ya no es directamente aplicable aquí
+// 		// porque el error viene del modelo y puede ser más genérico.
+// 		// El mensaje de error del modelo ahora es más descriptivo.
+// 		http.Error(w, "Producto no encontrado o error de base de datos", http.StatusNotFound) // Mensaje genérico
+// 		return
+// 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ins)
-}
+// 	w.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(w).Encode(ins)
+// }
 
 // CreateInstrument maneja la creación de un nuevo producto.
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -90,23 +90,23 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteInstrument maneja la eliminación de un producto.
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+// func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+// 	id := chi.URLParam(r, "id")
 
-	rowsAffected, err := models.DeleteProduct(context.Background(), id)
-	if err != nil {
-		// El error al no encontrar filas se maneja con RowsAffected en el handler
-		http.Error(w, fmt.Sprintf("Error al eliminar: %v", err), http.StatusInternalServerError)
-		return
-	}
+// 	rowsAffected, err := models.DeleteProduct(context.Background(), id)
+// 	if err != nil {
+// 		// El error al no encontrar filas se maneja con RowsAffected en el handler
+// 		http.Error(w, fmt.Sprintf("Error al eliminar: %v", err), http.StatusInternalServerError)
+// 		return
+// 	}
 
-	if rowsAffected == 0 {
-		http.Error(w, "No se pudo eliminar el producto o no se encontró", http.StatusInternalServerError)
-		return
-	}
+// 	if rowsAffected == 0 {
+// 		http.Error(w, "No se pudo eliminar el producto o no se encontró", http.StatusInternalServerError)
+// 		return
+// 	}
 
-	w.WriteHeader(http.StatusNoContent)
-}
+// 	w.WriteHeader(http.StatusNoContent)
+// }
 
 // DeleteInstrumentSQLi maneja la eliminación vulnerable de un producto por SQLi.
 // Maybe it's for curl or r.URL.Query().Get("id")
@@ -140,7 +140,16 @@ func DeleteProductSQLi(w http.ResponseWriter, r *http.Request) {
 	// w.WriteHeader(http.StatusNoContent)
 	// Respuesta de éxito similar a tu ejemplo de DeleteUserSQLi
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]bool{"error": false}) // o un struct de payload
+	// json.NewEncoder(w).Encode(map[string]bool{"error": false}) // o un struct de payload
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": fmt.Sprintf("Registro(s) eliminado(s) con éxito. Filas afectadas: %d", rowsAffected),
+		// Puedes agregar el ID que se intentó eliminar si lo deseas:
+	}
+
+	json.NewEncoder(w).Encode(response) // o un struct de payload
+
 }
 
 // GetInstrumentByIDSQLiURLParam obtiene un producto por ID vulnerable a SQLi vía URL param.

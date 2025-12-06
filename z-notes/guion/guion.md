@@ -71,9 +71,19 @@ cambio de instruments a products
 cualquier entidad con usuarios.
 
 
+- corregir endpoints
 
+- corregir swagger 
 
+- levantar la api con docker compose
 
+- mostrar swagger (abrir select y delete)
+
+- burp  (get delete)
+
+- imagen desarrollo seguro mitigacion
+
+- cierre bold
 
 
 

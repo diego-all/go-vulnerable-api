@@ -9,3 +9,5 @@
 - curl -X PUT http://localhost:8081/products/26 -H "Content-Type: application/json" -d '{"name": "Guitarra Acústica", "description": "6 cuerdas, madera de abeto", "price": 500.0}'
 
 - curl -X DELETE http://localhost:8081/products/1
+
+

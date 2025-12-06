@@ -44,18 +44,23 @@ func AppRoutes() http.Handler {
 
 		// Rutas CRUD estándar (las vulnerabilidades están en los handlers o modelos subyacentes)
 		r.Get("/", handlers.GetAllProducts)
-		r.Get("/{id}", handlers.GetProductByID)
-		r.Post("/", handlers.CreateProduct)
-		r.Put("/{id}", handlers.UpdateProduct)
-		r.Delete("/{id}", handlers.DeleteProduct)
-
-		// Rutas Vulnerables (para propósitos académicos y de pruebas de seguridad)
-
-		// Ruta DELETE vulnerable a SQLi (obtiene ID de query param)
-		r.Delete("/vulnerable-sqli", handlers.DeleteProductSQLi)
 
 		// Ruta GET vulnerable a SQLi (obtiene ID de query param y puede devolver múltiples)
-		r.Get("/vulnerable-sqligetinst", handlers.GetProductByIDSQLi)
+		r.Get("/search", handlers.GetProductByIDSQLi)
+		// r.Get("/vulnerable-sqligetinst", handlers.GetProductByIDSQLi)
+		// r.Get("/{id}", handlers.GetProductByID)
+
+		r.Post("/", handlers.CreateProduct)
+
+		r.Put("/{id}", handlers.UpdateProduct)
+
+		// Ruta DELETE vulnerable a SQLi (obtiene ID de query param)
+		r.Delete("/", handlers.DeleteProductSQLi)
+		// r.Delete("/vulnerable-sqli", handlers.DeleteProductSQLi)
+
+		// r.Delete("/{id}", handlers.DeleteProduct)
+
+		// Rutas Vulnerables (para propósitos académicos y de pruebas de seguridad)
 
 		// Ruta GET vulnerable a SQLi (obtiene ID de query param, pero originalmente diseñada para URL param)
 		r.Get("/vulnerable-sqligetinsturlparam", handlers.GetProductByIDSQLiURLParam)

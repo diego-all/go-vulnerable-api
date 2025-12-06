@@ -18,3 +18,8 @@
 
 
     ls /snap/seclists/current/
+
+
+1. Enumerar , inventar con un swagger.
+
+2. 
