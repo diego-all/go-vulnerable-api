@@ -46,7 +46,7 @@ paths:
         '400':
           description: Invalid JSON supplied
         '500':
-          description: Internal server error (Note: The API exposes internal errors in its current state)
+          description: Internal server error
 
   /products/{id}:
     parameters:
@@ -56,20 +56,8 @@ paths:
         schema:
           type: integer
         description: The ID of the product
-    get:
-      summary: Get a product by ID
-      operationId: getProductByID
-      tags:
-        - Products (Standard)
-      responses:
-        '200':
-          description: The product details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '404':
-          description: Product not found or database error
+    # GET /products/{id} no está activo en routes.go
+    # DELETE /products/{id} no está activo en routes.go
     put:
       summary: Update an existing product
       operationId: updateProduct
@@ -92,22 +80,12 @@ paths:
           description: Invalid JSON supplied
         '500':
           description: Internal server error, or product was not found/updated
-    delete:
-      summary: Delete a product by ID
-      operationId: deleteProduct
-      tags:
-        - Products (Standard)
-      responses:
-        '204':
-          description: Product successfully deleted (No Content)
-        '500':
-          description: Internal server error, or product was not found/deleted
 
-  # --- VULNERABLE ENDPOINTS ---
+  # --- VULNERABLE ENDPOINTS (Corregidos para reflejar el path real) ---
 
-  /products/vulnerable-sqli:
+  /products/vulnerable-sqli-delete:
     delete:
-      summary: VULNERABLE - Delete product by ID via Query Param (SQL Injection)
+      summary: VULNERABLE - Delete product(s) by ID via Query Param (SQL Injection)
       operationId: deleteProductSQLi
       tags:
         - Products (Vulnerable)
@@ -120,15 +98,18 @@ paths:
           description: Product ID. Highly vulnerable to SQL Injection in the backend.
       responses:
         '200':
-          description: Deletion attempt processed
+          description: Deletion successful or successful exploitation. Returns status and rows affected.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  error:
+                  success:
                     type: boolean
-                    example: false
+                    example: true
+                  message:
+                    type: string
+                    example: "Registro(s) eliminado(s) con éxito. Filas afectadas: 1"
         '400':
           description: Product ID is required
         '404':
@@ -136,9 +117,9 @@ paths:
         '500':
           description: Internal server error
 
-  /products/vulnerable-sqligetinst:
+  /products/vulnerable-sqli-multi:
     get:
-      summary: VULNERABLE - Get product(s) by ID via Query Param (SQL Injection)
+      summary: VULNERABLE - Get product(s) by ID via Query Param (SQL Injection, Multi-Row)
       operationId: getProductByIDSQLi
       tags:
         - Products (Vulnerable)
@@ -163,9 +144,9 @@ paths:
         '500':
           description: Internal server error
 
-  /products/vulnerable-sqligetinsturlparam:
+  /products/vulnerable-sqli-single:
     get:
-      summary: VULNERABLE - Get product by ID via Query Param (SQL Injection)
+      summary: VULNERABLE - Get product by ID via Query Param (SQL Injection, Single-Row)
       operationId: getProductByIDSQLiURLParam
       tags:
         - Products (Vulnerable)
