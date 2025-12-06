@@ -33,7 +33,7 @@ services:
   app:
     # hostname: random
     build:
-      context: . # El contexto de construcción es el directorio actual
+      context: . # El contexto de construcción es el directorio raíz
       dockerfile: Dockerfile # Usa el Dockerfile de la API (simplificado o multi-stage, según tu elección)
     container_name: go-vulnerable-api
     ports:

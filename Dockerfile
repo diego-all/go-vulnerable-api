@@ -9,9 +9,9 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-# Copia todo el código fuente de la aplicación
-COPY main.go .
-COPY routes.go .
+# *** CAMBIO CLAVE AQUÍ: Copiar los archivos de la API a su ubicación final ***
+# Copia la carpeta cmd/api (que contiene main.go y routes.go) y las demás carpetas
+COPY cmd/ ./cmd/
 COPY handlers/ ./handlers/
 COPY models/ ./models/
 COPY db/ ./db/
@@ -20,13 +20,14 @@ COPY db/ ./db/
 #COPY cert/key.pem .
 
 # Construye la aplicación Go
-# NOTA: Sin CGO_ENABLED=0, la compilación usará el valor por defecto
-# Si tu aplicación o sus dependencias requieren bibliotecas C,
-# y estas no están presentes en la imagen alpine, el binario podría fallar al ejecutarse.
-RUN GOOS=linux go build -o main .
+# La bandera -o especifica la ruta de salida. El binario se llamará 'api'
+# y se colocará en el directorio raíz del contenedor /app
+# El paquete a construir es ./cmd/api
+RUN GOOS=linux go build -o api ./cmd/api
 
 # Expone el puerto en el que la aplicación Go escuchará
-EXPOSE 8080
+EXPOSE 8081
 
 # Comando para iniciar la aplicación cuando el contenedor se inicie
-CMD ["./main"]
+# *** CAMBIO CLAVE AQUÍ: Ejecutar el binario compilado 'api' ***
+CMD ["./api"]
