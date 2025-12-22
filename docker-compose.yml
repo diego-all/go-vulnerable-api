@@ -1,50 +1,50 @@
 version: '3.8'
 
 services:
-
   db:
-    # hostname: random
     build:
-      context: ./db # El contexto de construcción es la nueva carpeta 'db'
-      dockerfile: Dockerfile # Busca el Dockerfile dentro de './db'
+      context: ./db
+      dockerfile: Dockerfile
     container_name: go-vulnerable-db
-    ports:
-      - "5432:5432" # Opcional: Mapea el puerto de la DB al host (útil para herramientas externas)
+    # Evitamos mapear 5432:5432 para evitar conflictos en el host de Jenkins
+    # La API y ZAP se comunicarán internamente por la red.
+    expose:
+      - "5432"
     environment:
-      POSTGRES_USER: user # Nombre de usuario de la base de datos
-      POSTGRES_PASSWORD: password # Contraseña del usuario
-      POSTGRES_DB: mydatabase # Nombre de la base de datos
-      #PG_DATA: /var/lib/postgresql/data
+      POSTGRES_USER: user
+      # Sugerencia: En producción usa Jenkins Credentials y envíalo como variable
+      POSTGRES_PASSWORD: password 
+      POSTGRES_DB: mydatabase
     volumes:
-      # - apigo:/var/lib/postgresql/data #named volume
-      # *** CAMBIO AQUÍ: Ahora usamos un bind mount ***
-      # Se montará la carpeta './db-data/postgres' de tu host al '/var/lib/postgresql/data' del contenedor
-      # Docker creará la carpeta './db-data/postgres' en tu proyecto si no existe.
       - ./db-data/postgres:/var/lib/postgresql/data:rw
-
-      # Puedes descomentar la siguiente línea SI NO ESTÁS USANDO el COPY init.sql en db/Dockerfile
-      # y quieres montar el init.sql desde una ubicación específica del host.
-      # Sin embargo, como tu db/Dockerfile ya lo copia, esta línea no es necesaria
-      # y causaría el error "not a directory" si se deja activa.
-      # - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-# ... dentro de service: db
-
+    networks:
+      - jenkins-net
+    # Seguridad: Limitar recursos (Corrige alertas MEDIUM de KICS)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
 
   app:
-    # hostname: random
     build:
-      context: . # El contexto de construcción es el directorio raíz
-      dockerfile: Dockerfile # Usa el Dockerfile de la API (simplificado o multi-stage, según tu elección)
+      context: .
+      dockerfile: Dockerfile
     container_name: go-vulnerable-api
     ports:
-      - "8081:8081" # Mapea el puerto 8080 del host al puerto 8080 del contenedor
-    # environment:
-      # PORT: 8080
-      # DATABASE_URL: postgres://user:password@db:5432/mydatabase?sslmode=disable
+      - "8081:8081"
     depends_on:
-      - db # Asegura que la base de datos se inicie antes que la aplicación
+      - db
+    networks:
+      - jenkins-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
-# *** CAMBIO AQUÍ: Eliminamos la sección de volúmenes nombrados ***
-# Ya no necesitamos definir 'pgdata' porque estamos usando un bind mount directo.
-# volumes:
-#   pgdata:
+# --- LA SOLUCIÓN DEFINITIVA ---
+networks:
+  jenkins-net:
+    external: true
+    name: jenkins-net
